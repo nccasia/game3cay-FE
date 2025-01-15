@@ -1,0 +1,21 @@
+{
+  "name": "poker",
+  "uuid": "cccc1765-6c90-48cc-9f6d-8d1b08ace5e9",
+  "version": "3.6.0",
+  "creator": {
+    "version": "3.8.3",
+    "registry": {
+      "remote": {}
+    },
+    "dependencies": {}
+  },
+  "description": "德州扑克",
+  "dependencies": {
+    "glob": "^11.0.0",
+    "mezon-sdk": "github:nccasia/mezon-web-js",
+    "poker-engine": "^0.0.5",
+    "rimraf": "^3.0.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  }
+}
