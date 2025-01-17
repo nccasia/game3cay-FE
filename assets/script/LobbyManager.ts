@@ -20,6 +20,21 @@ export class LobbyManager extends Component {
   createRoomButton: Button = null;
 
   @property(Button)
+  choose1kButton: Button = null;
+
+  @property(Button)
+  choose2kButton: Button = null;
+
+  @property(Button)
+  choose5kButton: Button = null;
+
+  @property(Button)
+  choose10kButton: Button = null;
+
+  @property(Node)
+  chooseBetNodde: Node = null;
+
+  @property(Button)
   leaveRoom: Button = null;
 
   @property(Label)
@@ -37,18 +52,42 @@ export class LobbyManager extends Component {
   @property(gaming)
   gaming: gaming = null;
 
+  @property(Button)
+  closeChooseBet: Button = null;
+
   protected onLoad(): void {
     LobbyManager.instance = this;
   }
 
-  public updatePlayer(owner:string) {
-    this.gaming.updatePlayer(owner);
+  public updatePlayer(owner: string, isUpdateOwner: boolean) {
+    this.gaming.updatePlayer(owner, isUpdateOwner);
+  }
+
+  public setPlayerWallet(playerId: string, walletAmount: number) {
+    this.gaming.setPlayerWallet(playerId, walletAmount);
   }
 
   protected start(): void {
     this.createRoomButton.node.on('click', this.onCreateRoom, this);
     this.leaveRoom.node.on('click', () => {
       WebRequestManager.instance.leaveRoom(Global.myRoom.id);
+    });
+
+    const betButtons = [
+      { button: this.choose1kButton, bet: 1000 },
+      { button: this.choose2kButton, bet: 2000 },
+      { button: this.choose5kButton, bet: 5000 },
+      { button: this.choose10kButton, bet: 10000 }
+    ];
+
+    betButtons.forEach(({ button, bet }) => {
+      button.node.on('click', () => {
+      this.onChooseBet(bet);
+      });
+    });
+
+    this.closeChooseBet.node.on('click', () => {
+      this.chooseBetNodde.active = false;
     });
   }
 
@@ -68,12 +107,18 @@ export class LobbyManager extends Component {
     }
 
     roomItem.active = true;
-    (roomItem.getComponent('RoomItem') as any).setRoomName('Room_' + room.id, room.id, room);
+    (roomItem.getComponent('RoomItem') as any).setRoomName(room.id + "_" + room.betAmount, room.id, room);
     roomItem.name = `Room_${room.name}`;
   }
 
   onCreateRoom() {
-    WebRequestManager.instance.createRoom((roomName: string, roomId: string, room: Room) => {
+    this.chooseBetNodde.active = true;
+    
+  }
+
+  onChooseBet(bet: number) {
+    this.chooseBetNodde.active = false;
+    WebRequestManager.instance.createRoom(bet ,(roomName: string, roomId: string, room: Room) => {
       this.updateRoomList(room, 0);
     });
   }
@@ -95,7 +140,7 @@ export class LobbyManager extends Component {
 
   public setUserInfo(userInfo: UserInfo) {
     this.usernameLabel.string = userInfo.displayName;
-    if(userInfo.wallet) this.userWallet.string = Global.formatWallet(userInfo.wallet);
+    if (userInfo.wallet) this.userWallet.string = Global.formatWallet(userInfo.wallet);
   }
 
   public loadGame(isLoadGame: boolean): void {

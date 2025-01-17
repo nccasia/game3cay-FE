@@ -42,7 +42,8 @@ export class Player extends Component {
     }
 
     setToken(value: number){
-        this.chipLabel.string = Global.formatWallet(value - 1000);
+        this.userInfo.wallet = value;
+        this.chipLabel.string = Global.formatWallet(value);
     }
 
     public getUserInfo() {

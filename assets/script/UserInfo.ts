@@ -24,6 +24,7 @@ class Room {
     wallet: number;
     members: string[];
     owner: string;
+    betAmount: number;
     constructor(id: string, name: string, wallet: number, members: string[], owner: string) {
         this.id = id;
         this.name = name;

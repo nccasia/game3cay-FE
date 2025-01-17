@@ -131,6 +131,10 @@ export class gaming extends Component {
         this.AgreeGameToggle.isChecked = true;
     }
 
+    public setChecked(){
+       if(Global.myRoom.owner == Global.myInfo.id) this.AgreeGameToggle.isChecked = true;
+    }
+
     private setButtonStatus() {
         this.startGameNode.active = true;
         
@@ -160,8 +164,6 @@ export class gaming extends Component {
         for (let i = this.container.children.length - 1; i >= 1; i--) {
             this.returnPokerCardToPool(this.container.children[i]);
         }
-        this._pot = 0;
-        this.potLabel.string = this._pot.toString();
         this._roundGame = 0;
         this.notificationPopup.active = false;
         this._playerHoleCards = [];
@@ -307,7 +309,7 @@ export class gaming extends Component {
         return reorderedPositions;
     }
 
-    public updatePlayer(owner: string): void {
+    public updatePlayer(owner: string, isUpdateOwner: boolean): void {
         for (let index = 0; index < this._maxPlayers; index++) {
             const member = Global.myRoomMembers[index];
             if (member) {
@@ -326,8 +328,10 @@ export class gaming extends Component {
                 player.setOwner(String(member.id) === String(owner));
             }
         });
-        this.setButtonStatus();
+        if(!isUpdateOwner) this.setButtonStatus();
+        else this.setChecked();
     }
+
 
     deal() {
         console.log('Dealing cards');
@@ -407,7 +411,10 @@ export class gaming extends Component {
 
     private showScore() {
         this.scheduleOnce(() => {
-            WebRequestManager.instance.getSocket().emit('endGame', { roomId: Global.myRoom.id });
+            if (Global.myRoom.owner === Global.myInfo.id) {
+                console.log('Emitting end game');
+                WebRequestManager.instance.getSocket().emit('endGame', { roomId: Global.myRoom.id, userId: Global.myInfo.id });
+            }
             this.notificationPopup.active = true;
             this.notificationLabel.string = this.playerRanks.map(rank =>
             `Rank: ${rank.rank}, Name: ${rank.name}, Score: ${rank.score}, Highest Card: ${rank.card.suit} ${rank.card.point}`
@@ -434,5 +441,14 @@ export class gaming extends Component {
     private returnPokerCardToPool(node: Node): void {
         node.removeFromParent();
         this.pokerCardPool.push(node);
+    }
+
+    public setPlayerWallet(playerId: string, walletAmount: number): void {
+        const playerIndex = Global.myRoomMembers.findIndex(member => member.id === playerId);
+        if (playerIndex !== -1) {
+            this.players[playerIndex].setToken(walletAmount);
+        } else {
+            console.error('Player not found');
+        }
     }
 }

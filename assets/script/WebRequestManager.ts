@@ -18,8 +18,9 @@ export class WebRequestManager extends Component {
     onLoad() {
         WebRequestManager.instance = this;
 
-        this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
-
+        this.socket = io('wss://game-pocker-api.nccsoft.vn/', { transports: ['websocket'] });
+        //this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
+        
         this.socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
         });
@@ -41,7 +42,7 @@ export class WebRequestManager extends Component {
             console.log('List Room:', JSON.stringify(message, null, 2));
             message.forEach((element: Room) => {
                 if (this.roomCreatedCallback) {
-                    this.roomCreatedCallback("Room_" + element.id, element.id, element);
+                    this.roomCreatedCallback(element.id + "_" + element.betAmount, element.id, element);
                 }
             });
 
@@ -54,7 +55,7 @@ export class WebRequestManager extends Component {
             Global.myRoom.id = roomInfo.roomId;
             Global.myRoomMembers = roomInfo.roomMembers;
 
-            LobbyManager.instance.updatePlayer(roomInfo.owner);
+            LobbyManager.instance.updatePlayer(roomInfo.owner, false);
             LobbyManager.instance.loadGame(true);
         });
 
@@ -66,34 +67,51 @@ export class WebRequestManager extends Component {
                     return roomInfo.roomMembers.includes(member.id);
                 });
                 Global.myRoomMembers = updatedMembers;
-                LobbyManager.instance.updatePlayer(roomInfo.owner);
-            }else{
+                LobbyManager.instance.updatePlayer(roomInfo.owner, false);
+            } else {
                 Global.myRoom = null;
                 Global.myRoomMembers = [];
                 LobbyManager.instance.loadGame(false);
             }
         });
 
-        
+
         this.socket.on("startBet", (data) => {
             const { totalBet, receiverId, currentGameId, appId } = data;
             const dataEmit = {
-              receiver_id: receiverId,
-              amount: totalBet,
-              note: `Đã đặt cược ${totalBet} token khi chơi game 3kay của NCC Studio!`,
-              sender_id: Global.myInfo.id,
-              sender_name: Global.myInfo.username,
-              extra_attribute: JSON.stringify({
-                sessionId: currentGameId,
-                appId,
-              }),
+                receiver_id: receiverId,
+                amount: totalBet,
+                note: `Đã đặt cược ${totalBet} token khi chơi game 3kay của NCC Studio!`,
+                sender_id: Global.myInfo.id,
+                sender_name: Global.myInfo.username,
+                extra_attribute: JSON.stringify({
+                    sessionId: currentGameId,
+                    appId,
+                }),
             };
             console.log(dataEmit);
             window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
-          });
-        
+        });
+
+        this.socket.on("playerWalletUpdated", (data) => {
+            console.log("playerWalletUpdated", data);
+            data.forEach(walletItem => {
+                if (walletItem.userId === Global.myInfo.id) {
+                    Global.myInfo.wallet = data.wallet;
+                    LobbyManager.instance.setUserInfo(Global.myInfo);
+                }
+                LobbyManager.instance.setPlayerWallet(walletItem.userId, walletItem.wallet);
+            });
+        });
+
+        this.socket.on("updateOwner", (data) => {
+            console.log("updateOwner", data);
+            Global.myRoom.owner = data.roomOwner;
+            LobbyManager.instance.updatePlayer(data.roomOwner, true);
+        });
+
         this.getUserInfo();
-    } 
+    }
 
     private roomCreatedCallback: (roomName: string, roomId: string, room: Room) => void;
     private roomFetchCallback: (roomInfo: Room[]) => void;
@@ -104,10 +122,10 @@ export class WebRequestManager extends Component {
             console.log('Acknowledgment from server:', ackResponse);
         });
     }
-    
-    public createRoom(callback: (roomName: string, roomId: string, room: Room) => void) {
+
+    public createRoom(betAmount: number, callback: (roomName: string, roomId: string, room: Room) => void) {
         this.roomCreatedCallback = callback; // Store the callback
-        this.socket.emit('createRoom', "new_room", (ackResponse: any) => {
+        this.socket.emit('createRoom', { name: "new_room", betAmount: betAmount }, (ackResponse: any) => {
             console.log('Acknowledgment from server:', ackResponse);
         });
     }
@@ -125,7 +143,7 @@ export class WebRequestManager extends Component {
     }
 
     protected onDisable(): void {
-        if(Global.myRoom.id) this.leaveRoom(Global.myRoom.id);
+        if (Global.myRoom.id) this.leaveRoom(Global.myRoom.id);
         this.socket.disconnect();
     }
 
@@ -136,11 +154,11 @@ export class WebRequestManager extends Component {
     getUserInfo() {
         window.Mezon.WebView.postEvent("PING", { message: "Hello Mezon!" });
         window.Mezon.WebView.onEvent("PONG", (data) => {
-        console.log("Hello Mezon Again!", data);
+            console.log("Hello Mezon Again!", data);
         });
 
         window.Mezon.WebView.onEvent("CURRENT_USER_INFO", (_, userData) => {
-            console.log("User Data:", userData);
+            console.log("getUserInfo", userData);
             if (!userData || !userData.user) {
                 return;
             }
@@ -162,7 +180,7 @@ export class WebRequestManager extends Component {
             );
 
             Global.myInfo = userInfoObj;
-            this.socket.emit("userInfo",  Global.myInfo);
+            this.socket.emit("userInfo", Global.myInfo);
             LobbyManager.instance.setUserInfo(userInfoObj);
         });
     }
