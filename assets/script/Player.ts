@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Component, Label, Node, Sprite } from 'cc';
 import UserInfo from './UserInfo';
 import { Global } from './Global';
 const { ccclass, property } = _decorator;
@@ -17,14 +17,19 @@ export class Player extends Component {
     @property(Node)
     readyIcon: Node = null;
 
+    @property(Sprite)
+    avatar: Sprite = null;
+
     userInfo: UserInfo;
     isOwner: boolean;
 
-    setup(userInfo: UserInfo) 
-    {
+    setup(userInfo: UserInfo) {
         this.userInfo = userInfo;
         this.nameLabel.string = userInfo.username;
         this.chipLabel.string = Global.formatWallet(userInfo.wallet);
+        Global.getAvatar(userInfo.avatarUrl, (spriteFrame) => {
+            if (spriteFrame) this.avatar.spriteFrame = spriteFrame;
+        });
     }
 
     setOwner(isOwner: boolean) 

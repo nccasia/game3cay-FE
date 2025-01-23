@@ -18,8 +18,8 @@ export class WebRequestManager extends Component {
     onLoad() {
         WebRequestManager.instance = this;
 
-        this.socket = io('wss://game-pocker-api.nccsoft.vn/', { transports: ['websocket'] });
-        //this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
+        //this.socket = io('wss://game-pocker-api.nccsoft.vn/', { transports: ['websocket'] });
+        this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
         
         this.socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
@@ -89,8 +89,8 @@ export class WebRequestManager extends Component {
                     appId,
                 }),
             };
-            console.log(dataEmit);
             window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
+            this.notification.showLoading();
         });
 
         this.socket.on("playerWalletUpdated", (data) => {
@@ -102,6 +102,11 @@ export class WebRequestManager extends Component {
                 }
                 LobbyManager.instance.setPlayerWallet(walletItem.userId, walletItem.wallet);
             });
+        });
+
+        this.socket.on("userConfirmed", (data) => {
+            this.notification.hideLoading();
+            this.notification.setNotification(data.message);
         });
 
         this.socket.on("updateOwner", (data) => {
@@ -164,9 +169,9 @@ export class WebRequestManager extends Component {
             }
             const user = {
                 id: userData.user?.id,
-                displayName: userData.user?.displayname,
+                displayName: userData.user?.display_name,
                 username: userData.user?.username,
-                avatarUrl: userData.user?.avatarUrl,
+                avatarUrl: userData.user?.avatar_url,
                 email: userData?.email,
                 wallet: JSON.parse(userData.wallet).value || 0,
             };
@@ -178,10 +183,21 @@ export class WebRequestManager extends Component {
                 user.wallet,
                 user.email
             );
-
             Global.myInfo = userInfoObj;
             this.socket.emit("userInfo", Global.myInfo);
             LobbyManager.instance.setUserInfo(userInfoObj);
+        });
+
+        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
+            this.socket.emit('userCancelBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+                console.log('Acknowledgment from server:', ackResponse);
+            });
+        });
+
+        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
+            this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+                console.log('Acknowledgment from server:', ackResponse);
+            });
         });
     }
 }

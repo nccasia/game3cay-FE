@@ -1,3 +1,4 @@
+import { SpriteFrame, assetManager, Texture2D, ImageAsset } from "cc";
 import UserInfo, { Room } from "./UserInfo";
 
 export class Global {
@@ -16,4 +17,22 @@ export class Global {
     static myRoom: Room;
     static myInfo: UserInfo;    
     static myRoomMembers: UserInfo[] = [];
+
+    static getAvatar(avatarUrl: string, callback: (spriteFrame: SpriteFrame | null) => void): void {
+        assetManager.loadRemote<ImageAsset>(avatarUrl, (err, imageAsset) => {
+            if (err) {
+                console.error('Failed to load image:', err);
+                callback(null);
+                return;
+            }
+
+            // Convert ImageAsset to SpriteFrame
+            const texture = new Texture2D();
+            texture.image = imageAsset;
+            const spriteFrame = new SpriteFrame();
+            spriteFrame.texture = texture;
+
+            callback(spriteFrame);
+        });
+    }
 }

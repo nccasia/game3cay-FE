@@ -3,6 +3,7 @@ import { pokerCard } from './pokerCard';
 import { WebRequestManager } from './WebRequestManager';
 import { Global } from './Global';
 import { Player } from './Player';
+import { notification } from './notification';
 
 const { ccclass, property } = _decorator;
 
@@ -66,12 +67,14 @@ export class gaming extends Component {
     private listCard: pokerInfo[] = [];
     private playerRanks: { score: number; card: { suit: string; point: number }; index: number; name: string; rank: number }[] = [];
     private pokerCardPool: Node[] = [];
+    private _mycard: pokerInfo[] = [];
 
     protected onLoad(): void {
         this.resetGame();
         const socket = WebRequestManager.instance.getSocket();
 
         socket.on('startedGame', (data: { playerHoleCards: pokerInfo[][], playerRanks: { score: number; card: { suit: string; point: number }; index: number; name: string; rank: number }[] }) => {
+            notification.instance.hideLoading();
             this.resetGame();
             this._playerHoleCards = data.playerHoleCards;
             this.playerRanks = data.playerRanks;
@@ -81,6 +84,13 @@ export class gaming extends Component {
             this.startGameNode.active = false;
             this._playersNum = data.playerHoleCards.length;
             this.listCard = this.flattenPlayerHoleCards(data.playerHoleCards);
+            const myIndex = Global.myRoomMembers.findIndex(member => member.id === Global.myInfo.id);
+            if (myIndex !== -1) {
+                this._mycard = this._playerHoleCards[myIndex];
+            } else {
+                console.error('Current user not found in room members!');
+            }
+
             this.deal();
         });
 
@@ -107,13 +117,13 @@ export class gaming extends Component {
         socket.on('playerWallet', (data: { userID: string, newWalletAmount: number }[]) => {
             console.log('Player wallet:', data);
             data.forEach(walletData => {
-            this.updatePlayerWallet(walletData.userID, walletData.newWalletAmount);
-            const playerIndex = Global.myRoomMembers.findIndex(member => member.id === walletData.userID);
-            if (playerIndex !== -1) {
-                this.players[playerIndex].setToken(walletData.newWalletAmount);
-            } else {
-                console.error('Player not found');
-            }
+                this.updatePlayerWallet(walletData.userID, walletData.newWalletAmount);
+                const playerIndex = Global.myRoomMembers.findIndex(member => member.id === walletData.userID);
+                if (playerIndex !== -1) {
+                    this.players[playerIndex].setToken(walletData.newWalletAmount);
+                } else {
+                    console.error('Player not found');
+                }
             });
         });
     }
@@ -131,13 +141,13 @@ export class gaming extends Component {
         this.AgreeGameToggle.isChecked = true;
     }
 
-    public setChecked(){
-       if(Global.myRoom.owner == Global.myInfo.id) this.AgreeGameToggle.isChecked = true;
+    public setChecked() {
+        if (Global.myRoom.owner == Global.myInfo.id) this.AgreeGameToggle.isChecked = true;
     }
 
     private setButtonStatus() {
         this.startGameNode.active = true;
-        
+
         const isOwner = Global.myRoom.owner == Global.myInfo.id;
         this.startGameButton.node.active = isOwner;
         this.AgreeGameToggle.node.active = !isOwner;
@@ -267,7 +277,7 @@ export class gaming extends Component {
     private getPlayersPosition(): Position[] {
         return [
             { x: -400, y: 160, rotation: 0 },
-            { x: 270, y: 150, rotation: 0 },
+            { x: 270, y: 160, rotation: 0 },
             { x: 270, y: -160, rotation: 0 },
             { isPlayer: true, x: 0, y: -200, rotation: 0 },
             { x: -400, y: -160, rotation: 0 }
@@ -322,16 +332,13 @@ export class gaming extends Component {
 
         this.players.forEach((player, index) => {
             const member = Global.myRoomMembers[index];
-            console.log('Player:', player, member);
             if (member) {
-                console.log(`Setting player ${index} (${member.id}) as owner:`, member.id === owner);           
                 player.setOwner(String(member.id) === String(owner));
             }
         });
-        if(!isUpdateOwner) this.setButtonStatus();
+        if (!isUpdateOwner) this.setButtonStatus();
         else this.setChecked();
     }
-
 
     deal() {
         console.log('Dealing cards');
@@ -340,10 +347,11 @@ export class gaming extends Component {
         this._roundGame++;
 
         let positionIndex = 0;
-        let isSecond = false;
-        let isThird = false;
         let total = this.listCard.length;
         let current = 0;
+        let movedCards = 0;
+
+        let cardsDealtPerPlayer = Array(this._playersNum).fill(0);
         this.schedule(() => {
             let poker = this.listCard[0];
             if (!poker) {
@@ -353,16 +361,14 @@ export class gaming extends Component {
             let pokerCardPrefab = this.getPokerCardFromPool();
             let pokerComponent = pokerCardPrefab.getComponent(pokerCard);
             pokerCardPrefab.name = `${poker.suit}_${poker.point} ${positionIndex}`;
-            const isPlayer = positionIndex == playerPos.findIndex(i => i.isPlayer);
 
-            pokerComponent.setData(poker.suit, poker.point, isPlayer);
-            if (positionIndex == this._playersNum) {
-                positionIndex = 0;
-                if (isSecond) {
-                    isThird = true;
-                }
-                isSecond = true;
-            }
+            const isPlayer = this._mycard.some(card => card.suit === poker.suit && card.point === poker.point);
+            pokerComponent.setData(poker.suit, poker.point, isPlayer, positionIndex);
+
+            cardsDealtPerPlayer[positionIndex]++;
+            const currentRound = cardsDealtPerPlayer[positionIndex];
+            const isSecond = currentRound === 2;
+            const isThird = currentRound === 3;
 
             this._playerHoleCards[positionIndex]?.push(poker);
 
@@ -372,22 +378,16 @@ export class gaming extends Component {
             pokerCardPrefab.setPosition(new Vec3(2, 217, 0));
             const pos = playerPos[positionIndex];
 
-            let posVec: Vec3;
-            // if (isPlayer) {
-            //     posVec = isThird ? new Vec3(pos.x + 126, pos.y, 0) : !isSecond ? new Vec3(pos.x - 52, pos.y, 0) : new Vec3(pos.x + 37, pos.y, 0);
-            // } else {
-            posVec = isThird ? new Vec3(pos.x + 160, pos.y, 0) : isSecond ? new Vec3(pos.x + 80, pos.y, 0) : new Vec3(pos.x, pos.y, 0);
-            //}
+            const posVec = isThird ? new Vec3(pos.x + 160, pos.y, 0) : isSecond ? new Vec3(pos.x + 80, pos.y, 0) : new Vec3(pos.x, pos.y, 0);
+            const playerPokerPos = isThird ? new Vec3(pos.x + 80, pos.y - 20, 0) : isSecond ? new Vec3(pos.x + 80, pos.y - 10, 0) : new Vec3(pos.x + 80, pos.y, 0);
 
-            tween(pokerCardPrefab).to(0.4, { position: posVec, eulerAngles: new Vec3(0, 0, pos.rotation) }).call(() => {
-                //if (isPlayer) {
-                //const playerPokerPos = isThird ? new Vec3(pos.x + 126, 0, 0) : !isSecond ? new Vec3(pos.x - 52, 0, 0) : new Vec3(pos.x + 37, 0, 0);
-
-                // tween(pokerCardPrefab).to(0.2, { eulerAngles: new Vec3(0, -90, 0), scale: new Vec3(1.1, 1.1, 1.1) }).call(() => {
-                //     pokerComponent.showPoker(poker.suit, poker.point);
-                // }).by(0.2, { eulerAngles: new Vec3(0, 90, 0) }).start();
-                //}).by(0.2, { position: playerPokerPos, eulerAngles: new Vec3(0, 90, 0) }).start();
-                //}
+            tween(pokerCardPrefab).to(0.4, { 
+                position: isPlayer ? playerPokerPos : posVec,
+                eulerAngles: Vec3.ZERO,
+            }).call(() => {
+                if (isPlayer) {
+                    pokerComponent.setTargetPosition(posVec);
+                }
             }).call(() => {
                 current++;
                 if (current == total) {
@@ -396,20 +396,56 @@ export class gaming extends Component {
                         .filter(pokerComponent => pokerComponent);
 
                     pokerComponents.reverse().forEach((pokerComponent, index) => {
-                        const delay = index * 0.2;
-                        tween(pokerComponent.node).delay(delay).to(0.2, { eulerAngles: new Vec3(0, -90, 0), scale: new Vec3(1.1, 1.1, 1.1) }).call(() => {
+                        if (pokerComponent.getIsMe()) {
+
+                            pokerComponent.node.on('card-flipped', () => {
+                                movedCards++;
+                                if (movedCards >= 2) {
+                                    pokerComponents.forEach((pokerComponent) => {
+                                        if (pokerComponent.getIsMe()) {
+                                            pokerComponent.moveToTargetPosition();
+                                            pokerComponent.node.off('card-flipped');
+                                            pokerComponent.setOpened();
+                                        }
+                                    });
+                                }
+                            });
+
+                            if (this._mycard.length >= 2 &&
+                                (this._mycard[1].point == pokerComponent.getPoint() && this._mycard[1].suit == pokerComponent.getSuit() ||
+                                    this._mycard[2].point == pokerComponent.getPoint() && this._mycard[2].suit == pokerComponent.getSuit())) {
+                                pokerComponent.addListener();
+                            }
                             pokerComponent.flipPoker();
-                        }).by(0.2, { eulerAngles: new Vec3(0, 90, 0) }).start();
+                        }
                     });
-                    this.showScore();
+
+                    this.scheduleOnce(() => {
+                        this.showScore();
+                    }, 10);
                 }
             }).start();
-            positionIndex++;
+            positionIndex = (positionIndex + 1) % this._playersNum; // Move to the next player
             this.listCard.shift();
         }, 0.3, total - 1, 0);
-    } 
+    }
 
     private showScore() {
+        const pokerComponents = this.container.children
+            .map(child => child.getComponent(pokerCard))
+            .filter(pokerComponent => pokerComponent);
+
+        pokerComponents.reverse().forEach((pokerComponent) => {
+            if (pokerComponent.getIsMe() && !pokerComponent.isMoveToTargetPosition()) {
+                pokerComponent.moveToTargetPosition();
+            }
+            if (!pokerComponent.isMoveToTargetPosition()) {
+                this.scheduleOnce(() => {
+                    pokerComponent.tweenFlip();
+                }, 0.2);
+            }
+        });
+
         this.scheduleOnce(() => {
             if (Global.myRoom.owner === Global.myInfo.id) {
                 console.log('Emitting end game');
@@ -417,17 +453,17 @@ export class gaming extends Component {
             }
             this.notificationPopup.active = true;
             this.notificationLabel.string = this.playerRanks.map(rank =>
-            `Rank: ${rank.rank}, Name: ${rank.name}, Score: ${rank.score}, Highest Card: ${rank.card.suit} ${rank.card.point}`
+                `Rank: ${rank.rank}, Name: ${rank.name}, Score: ${rank.score}, Highest Card: ${rank.card.suit} ${rank.card.point}`
             ).join('\n');
-            
+
             this.scheduleOnce(() => {
-            this.notificationPopup.active = false;
-            this.setButtonStatus();
-            for (let i = this.container.children.length - 1; i >= 1; i--) {
-                this.returnPokerCardToPool(this.container.children[i]);
-            }
-            }, 3);
-        }, 3);
+                this.notificationPopup.active = false;
+                this.setButtonStatus();
+                for (let i = this.container.children.length - 1; i >= 1; i--) {
+                    this.returnPokerCardToPool(this.container.children[i]);
+                }
+            }, 5);
+        }, 2);
     }
 
     private getPokerCardFromPool(): Node {
