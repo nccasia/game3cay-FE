@@ -10381,7 +10381,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 573.6891679748823,
+    "_orthoHeight": 360,
     "_near": 0,
     "_far": 2000,
     "_color": {
@@ -10722,6 +10722,9 @@
     "_children": [
       {
         "__id__": 264
+      },
+      {
+        "__id__": 267
       }
     ],
     "_active": true,
@@ -10765,79 +10768,27 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "potLabel",
+    "_name": "chipIcon",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
       "__id__": 263
     },
-    "_children": [
-      {
-        "__id__": 265
-      }
-    ],
-    "_active": true,
-    "_components": [
-      {
-        "__id__": 268
-      },
-      {
-        "__id__": 269
-      }
-    ],
-    "_prefab": null,
-    "_lpos": {
-      "__type__": "cc.Vec3",
-      "x": -30,
-      "y": 1.001,
-      "z": 0
-    },
-    "_lrot": {
-      "__type__": "cc.Quat",
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "w": 1
-    },
-    "_lscale": {
-      "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
-      "z": 1
-    },
-    "_mobility": 0,
-    "_layer": 33554432,
-    "_euler": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "_id": "62zLYazIRACa9dvHnjncKC"
-  },
-  {
-    "__type__": "cc.Node",
-    "_name": "chipIcon",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "_parent": {
-      "__id__": 264
-    },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 266
+        "__id__": 265
       },
       {
-        "__id__": 267
+        "__id__": 266
       }
     ],
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 70,
-      "y": -1.205,
+      "x": 40,
+      "y": -0.20400000000006457,
       "z": 0
     },
     "_lrot": {
@@ -10869,7 +10820,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 265
+      "__id__": 264
     },
     "_enabled": true,
     "__prefab": null,
@@ -10891,7 +10842,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 265
+      "__id__": 264
     },
     "_enabled": true,
     "__prefab": null,
@@ -10925,18 +10876,66 @@
     "_id": "1dtudp/sdA65t0FTRXvnsM"
   },
   {
+    "__type__": "cc.Node",
+    "_name": "potLabel",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 263
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 268
+      },
+      {
+        "__id__": 269
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": -60,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 33554432,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "62zLYazIRACa9dvHnjncKC"
+  },
+  {
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 264
+      "__id__": 267
     },
     "_enabled": true,
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 12.1640625,
+      "width": 80,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -10952,7 +10951,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 264
+      "__id__": 267
     },
     "_enabled": true,
     "__prefab": null,
@@ -10967,14 +10966,14 @@
       "a": 255
     },
     "_string": "0",
-    "_horizontalAlign": 1,
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 24,
     "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 0,
-    "_enableWrapText": false,
+    "_overflow": 1,
+    "_enableWrapText": true,
     "_font": {
       "__uuid__": "c51724e8-aff0-4ae4-a8e4-b70f09505d3b",
       "__expectedType__": "cc.TTFFont"
@@ -14967,7 +14966,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 573.6891679748823,
+    "_orthoHeight": 360,
     "_near": 0,
     "_far": 2000,
     "_color": {
