@@ -6,18 +6,19 @@ import { LobbyManager } from './LobbyManager';
 import UserInfo, { Room } from './UserInfo';
 import { Global } from './Global';
 import { notification } from './notification';
+import * as GlobalVariable from './Common/GlobalVariable';
 
 @ccclass('WebRequestManager')
 export class WebRequestManager extends Component {
     static instance: WebRequestManager;
     private socket: any;
-
+    
     @property({ type: notification })
     public notification: notification = null;
 
     onLoad() {
         WebRequestManager.instance = this;
-
+        const baseWsUrl = `${GlobalVariable.useSSL ? "wws" : "ws"}://${GlobalVariable.hostname}:${GlobalVariable.useSSL ? "" : `:${GlobalVariable.port}`}`;
         //this.socket = io('wss://game-pocker-api.nccsoft.vn/', { transports: ['websocket'] });
         this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
         
@@ -115,6 +116,11 @@ export class WebRequestManager extends Component {
             LobbyManager.instance.updatePlayer(data.roomOwner, true);
         });
 
+        this.socket.on("balance", (data) => {
+            Global.myInfo.wallet = data;
+            LobbyManager.instance.setUserInfo(Global.myInfo);
+        });
+
         this.getUserInfo();
     }
 
@@ -143,6 +149,12 @@ export class WebRequestManager extends Component {
 
     public leaveRoom(roomId: string) {
         this.socket.emit('leaveRoom', { id: roomId, userId: Global.myInfo.id }, (ackResponse: any) => {
+            console.log('Acknowledgment from server:', ackResponse);
+        });
+    }
+
+    public getBalance() {
+        this.socket.emit('getBalance', { userInfo: Global.myInfo }, (ackResponse: any) => {
             console.log('Acknowledgment from server:', ackResponse);
         });
     }
@@ -194,10 +206,15 @@ export class WebRequestManager extends Component {
             });
         });
 
-        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
-            this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
-                console.log('Acknowledgment from server:', ackResponse);
-            });
+        // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
+        //     this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+        //         console.log('Acknowledgment from server:', ackResponse);
+        //     });
+        // });
+
+        window.Mezon.WebView.onEvent('SEND_TOKEN_RESPONSE_SUCCESS', (type, data) => {
+            console.log('SEND_TOKEN_RESPONSE_SUCCESS ', data)
+            WebRequestManager.instance.getBalance();
         });
     }
 }

@@ -1,6 +1,7 @@
+// export const hostname = "game-pocker-api.nccsoft.vn";
 // export const hostname = "game-sam-api.nccsoft.vn";
 export const hostname = "localhost";
-export const port = 2567;
+export const port = 3200;
 export const useSSL = false;
 export const lobbyRoom = 'lobby_room';
 export const gameInLobby = 'game_room_lobby';
@@ -17,4 +18,13 @@ export const myMezonInfo = {
    id: '',
    money: 0,
    mezonToken: 0
+};
+
+export const apiConfig = {
+   endpoints: {
+      swapToken: "/swap-token",
+      getBalance: "/get-balance",
+      addBalance: "/add-balance",
+      deductBalance: "/deduct-balance"
+   }
 };

@@ -72,7 +72,7 @@ export class gaming extends Component {
     protected onLoad(): void {
         this.resetGame();
         const socket = WebRequestManager.instance.getSocket();
-
+        
         socket.on('startedGame', (data: { playerHoleCards: pokerInfo[][], playerRanks: { score: number; card: { suit: string; point: number }; index: number; name: string; rank: number }[] }) => {
             notification.instance.hideLoading();
             this.resetGame();
@@ -91,6 +91,7 @@ export class gaming extends Component {
                 console.error('Current user not found in room members!');
             }
 
+            WebRequestManager.instance.getBalance();
             this.deal();
         });
 

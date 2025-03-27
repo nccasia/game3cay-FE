@@ -632,7 +632,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 159.17,
+      "width": 0,
       "height": 40
     },
     "_anchorPoint": {
@@ -1142,7 +1142,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100.83,
+      "width": 0,
       "height": 40
     },
     "_anchorPoint": {
@@ -1830,7 +1830,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "11c02c91-74e5-441f-ba25-a751898bbbe5@f9941",
+      "__uuid__": "fc534a55-3eb4-4406-9516-65758885434c@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -2412,7 +2412,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "11c02c91-74e5-441f-ba25-a751898bbbe5@f9941",
+      "__uuid__": "cd6cd29c-6947-4ff1-bd9f-1443918800f3@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -2529,7 +2529,7 @@
     "fileId": "45V4va5V5G9aAoG7ZJKQSU"
   },
   {
-    "__type__": "e84d34xH11ILLm0RuN/JocE",
+    "__type__": "a0d28sjLKFOsosKh94DxsY0",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -2547,7 +2547,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "12b4YYfw9I5rYera2Z7Y68"
+    "fileId": "64lQ6E8M1LqKoYBKzRstMX"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2835,7 +2835,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "0c1c2d99-eb95-488d-858f-4826a7dcc79a@f9941",
+      "__uuid__": "30f6dfa0-add8-4453-802f-5fe4cfa436f1@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -3027,7 +3027,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "14cb2d1e-d8ce-4ad8-af4b-17f23f6f20ef@f9941",
+      "__uuid__": "bd1bcaba-bd7d-4a71-b143-997c882383e4@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -3163,7 +3163,7 @@
     "fileId": "35XuA98uVCZLGmEDYRf7NE"
   },
   {
-    "__type__": "22379kFMs1HFrRFII7Wjisw",
+    "__type__": "1cd0f8swIpDors4X01oU3zL",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -3190,7 +3190,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "f6JKdKEchCfbn+X1sXLM2t"
+    "fileId": "83zgVh6WRC7JwksdfPx9MH"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -3201,6 +3201,6 @@
       "__id__": 0
     },
     "fileId": "9eecbp4v1MsYCf1wSWzSKt",
-    "targetOverrides": null
+    "targetOverrides": []
   }
 ]
