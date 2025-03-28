@@ -117,6 +117,7 @@ export class WebRequestManager extends Component {
         });
 
         this.socket.on("balance", (data) => {
+            console.log('onBalance ', data);
             Global.myInfo.wallet = data;
             LobbyManager.instance.setUserInfo(Global.myInfo);
         });
@@ -197,7 +198,7 @@ export class WebRequestManager extends Component {
             );
             Global.myInfo = userInfoObj;
             this.socket.emit("userInfo", Global.myInfo);
-            LobbyManager.instance.setUserInfo(userInfoObj);
+            // LobbyManager.instance.setUserInfo(userInfoObj);
         });
 
         window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {

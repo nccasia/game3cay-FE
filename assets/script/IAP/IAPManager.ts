@@ -14,7 +14,7 @@ export class IAPManager extends Component {
             sender_id: GlobalVariable.myMezonInfo.id,
             sender_name: GlobalVariable.myMezonInfo.name
         };
-        // window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
+        window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
         GlobalEvent.emit('startGetGold')
     }
     sendMezon() {
@@ -25,7 +25,7 @@ export class IAPManager extends Component {
             sender_id: GlobalVariable.myMezonInfo.id,
             sender_name: GlobalVariable.myMezonInfo.name
         };
-        // window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
+        window.Mezon.WebView.postEvent("SEND_TOKEN", dataEmit);
     }
 
     getMezon(balance) {
