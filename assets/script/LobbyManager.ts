@@ -76,10 +76,10 @@ export class LobbyManager extends Component {
     });
 
     const betButtons = [
-      { button: this.choose1kButton, bet: 1000 },
-      { button: this.choose2kButton, bet: 2000 },
-      { button: this.choose5kButton, bet: 5000 },
-      { button: this.choose10kButton, bet: 10000 }
+      { button: this.choose1kButton, bet: 100 },
+      { button: this.choose2kButton, bet: 200 },
+      { button: this.choose5kButton, bet: 500 },
+      { button: this.choose10kButton, bet: 1000 }
     ];
 
     betButtons.forEach(({ button, bet }) => {
