@@ -201,11 +201,11 @@ export class WebRequestManager extends Component {
             // LobbyManager.instance.setUserInfo(userInfoObj);
         });
 
-        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
-            this.socket.emit('userCancelBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
-                console.log('Acknowledgment from server:', ackResponse);
-            });
-        });
+        // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
+        //     this.socket.emit('userCancelBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+        //         console.log('Acknowledgment from server:', ackResponse);
+        //     });
+        // });
 
         // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
         //     this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
