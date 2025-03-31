@@ -186,19 +186,19 @@ export class WebRequestManager extends Component {
                 username: userData.user?.username,
                 avatarUrl: userData.user?.avatar_url,
                 email: userData?.email,
-                wallet: JSON.parse(userData.wallet).value || 0,
+                // wallet: JSON.parse(userData.wallet).value || 0,
             };
             const userInfoObj = new UserInfo(
                 user.id,
                 user.username,
                 user.displayName,
                 user.avatarUrl,
-                user.wallet,
+                0,
                 user.email
             );
             Global.myInfo = userInfoObj;
             this.socket.emit("userInfo", Global.myInfo);
-            // LobbyManager.instance.setUserInfo(userInfoObj);
+            LobbyManager.instance.setUserInfo(userInfoObj);
         });
 
         // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
