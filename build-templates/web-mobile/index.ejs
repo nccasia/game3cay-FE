@@ -50,7 +50,28 @@
 	  <!-- <img src="loading.png" alt="Your Image" class="loading-image"> -->
     <h2 class="loadding-text">Loading...</h2>
 	</div>
+	<script>
+	window.cocosIns = this;
+	
+	var splash = document.querySelector(".splash");
+  var loadingText = document.querySelector(".loadding-text");
+  var loadingTextFail = document.querySelector(".loadding-text-fail");
+  var canPlayGame = true;
 
+	function InitDone(){
+		setTimeout(()=>{
+      if (canPlayGame) {
+        splash.style.display = "none";
+      }
+		}, 300)
+	}
+    document.documentElement.style.height = "auto";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.minHeight = "100vh";
+    document.body.style.height = "100vh";
+    document.body.style.overflow = "hidden";
+    document.body.style.marginTop = "1px";
+  </script>
   <div id="GameDiv" cc_exact_fit_screen="true">
     <div id="Cocos3dGameContainer">
       <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>

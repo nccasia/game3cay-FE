@@ -199,6 +199,7 @@ export class WebRequestManager extends Component {
             Global.myInfo = userInfoObj;
             this.socket.emit("userInfo", Global.myInfo);
             LobbyManager.instance.setUserInfo(userInfoObj);
+            window.cocosIns.InitDone();
         });
 
         // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
