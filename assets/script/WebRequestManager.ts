@@ -6,18 +6,19 @@ import { LobbyManager } from './LobbyManager';
 import UserInfo, { Room } from './UserInfo';
 import { Global } from './Global';
 import { notification } from './notification';
+import * as GlobalVariable from './Common/GlobalVariable';
 
 @ccclass('WebRequestManager')
 export class WebRequestManager extends Component {
     static instance: WebRequestManager;
     private socket: any;
-
+    
     @property({ type: notification })
     public notification: notification = null;
 
     onLoad() {
         WebRequestManager.instance = this;
-
+        const baseWsUrl = `${GlobalVariable.useSSL ? "wws" : "ws"}://${GlobalVariable.hostname}:${GlobalVariable.useSSL ? "" : `:${GlobalVariable.port}`}`;
         //this.socket = io('wss://game-pocker-api.nccsoft.vn/', { transports: ['websocket'] });
         this.socket = io('ws://localhost:3200', { transports: ['websocket'] });
         
@@ -115,6 +116,12 @@ export class WebRequestManager extends Component {
             LobbyManager.instance.updatePlayer(data.roomOwner, true);
         });
 
+        this.socket.on("balance", (data) => {
+            console.log('onBalance ', data);
+            Global.myInfo.wallet = data;
+            LobbyManager.instance.setUserInfo(Global.myInfo);
+        });
+
         this.getUserInfo();
     }
 
@@ -147,6 +154,12 @@ export class WebRequestManager extends Component {
         });
     }
 
+    public getBalance() {
+        this.socket.emit('getBalance', { userInfo: Global.myInfo }, (ackResponse: any) => {
+            console.log('Acknowledgment from server:', ackResponse);
+        });
+    }
+
     protected onDisable(): void {
         if (Global.myRoom.id) this.leaveRoom(Global.myRoom.id);
         this.socket.disconnect();
@@ -173,31 +186,37 @@ export class WebRequestManager extends Component {
                 username: userData.user?.username,
                 avatarUrl: userData.user?.avatar_url,
                 email: userData?.email,
-                wallet: JSON.parse(userData.wallet).value || 0,
+                // wallet: JSON.parse(userData.wallet).value || 0,
             };
             const userInfoObj = new UserInfo(
                 user.id,
                 user.username,
                 user.displayName,
                 user.avatarUrl,
-                user.wallet,
+                0,
                 user.email
             );
             Global.myInfo = userInfoObj;
             this.socket.emit("userInfo", Global.myInfo);
             LobbyManager.instance.setUserInfo(userInfoObj);
+            window.cocosIns.InitDone();
         });
 
-        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
-            this.socket.emit('userCancelBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
-                console.log('Acknowledgment from server:', ackResponse);
-            });
-        });
+        // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_FAILED", (data) => {
+        //     this.socket.emit('userCancelBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+        //         console.log('Acknowledgment from server:', ackResponse);
+        //     });
+        // });
 
-        window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
-            this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
-                console.log('Acknowledgment from server:', ackResponse);
-            });
+        // window.Mezon.WebView.onEvent("SEND_TOKEN_RESPONSE_SUCCESS", (data) => {
+        //     this.socket.emit('userConfirmBet', { roomId: Global.myRoom.id, userId: Global.myInfo.id }, (ackResponse: any) => {
+        //         console.log('Acknowledgment from server:', ackResponse);
+        //     });
+        // });
+
+        window.Mezon.WebView.onEvent('SEND_TOKEN_RESPONSE_SUCCESS', (type, data) => {
+            console.log('SEND_TOKEN_RESPONSE_SUCCESS ', data)
+            WebRequestManager.instance.getBalance();
         });
     }
 }

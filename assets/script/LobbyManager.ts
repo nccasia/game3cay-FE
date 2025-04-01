@@ -3,6 +3,8 @@ import { WebRequestManager } from './WebRequestManager';
 import UserInfo, { Room } from './UserInfo';
 import { Global } from './Global';
 import { gaming } from './gaming';
+import { UIManager } from './Common/UIManager';
+import { UIID } from './Common/UIID';
 const { ccclass, property } = _decorator;
 
 @ccclass('LobbyManager')
@@ -74,10 +76,10 @@ export class LobbyManager extends Component {
     });
 
     const betButtons = [
-      { button: this.choose1kButton, bet: 1000 },
-      { button: this.choose2kButton, bet: 2000 },
-      { button: this.choose5kButton, bet: 5000 },
-      { button: this.choose10kButton, bet: 10000 }
+      { button: this.choose1kButton, bet: 100 },
+      { button: this.choose2kButton, bet: 200 },
+      { button: this.choose5kButton, bet: 500 },
+      { button: this.choose10kButton, bet: 1000 }
     ];
 
     betButtons.forEach(({ button, bet }) => {
@@ -86,9 +88,9 @@ export class LobbyManager extends Component {
       });
     });
 
-    this.closeChooseBet.node.on('click', () => {
-      this.chooseBetNodde.active = false;
-    });
+    // this.closeChooseBet.node.on('click', () => {
+    //   this.chooseBetNodde.active = false;
+    // });
   }
 
   protected onEnable(): void {
@@ -112,12 +114,14 @@ export class LobbyManager extends Component {
   }
 
   onCreateRoom() {
-    this.chooseBetNodde.active = true;
+    // this.chooseBetNodde.active = true;
+    UIManager.Instance.showUI(UIID.ChooseBet);
     
   }
 
   onChooseBet(bet: number) {
-    this.chooseBetNodde.active = false;
+    // this.chooseBetNodde.active = false;
+    UIManager.Instance.HideUI(UIID.ChooseBet);
     WebRequestManager.instance.createRoom(bet ,(roomName: string, roomId: string, room: Room) => {
       this.updateRoomList(room, 0);
     });
@@ -139,6 +143,7 @@ export class LobbyManager extends Component {
   }
 
   public setUserInfo(userInfo: UserInfo) {
+    console.log('setUserInfo ', userInfo.wallet);
     this.usernameLabel.string = userInfo.displayName;
     if (userInfo.wallet) this.userWallet.string = Global.formatWallet(userInfo.wallet);
   }
